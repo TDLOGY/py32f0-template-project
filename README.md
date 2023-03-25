@@ -59,14 +59,18 @@ There is high probability that PY32F002A, PY32F003 and PY32F030 share the same c
   * J-Link: J-Link OB programmer: https://linhkienthuduc.com/jlink-ob-072-mach-nap-cho-arm-cortex-m
 * SEGGER J-Link Software and Documentation pack [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/)
 * GNU Arm Embedded Toolchain
+* Make 
 
 # Building
 
-## 1. Install GNU Arm Embedded Toolchain
+## 1a. Install GNU Arm Embedded Toolchain
 
 Download the toolchain from [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) according to your pc architecture, extract the files and install:
 
 Note: Don't download Cortex-M PACBTI Version
+
+## 1b. Install Make
+Download make 3.81 Binaries from: https://gnuwin32.sourceforge.net/packages/make.htm
 
 ## 2. : Install SEGGER J-Link (Must)
 
