@@ -1,5 +1,5 @@
 # 'make V=1' will show all compiler calls.
-V		?= 0
+V		?= 1
 ifeq ($(V),0)
 Q		:= @
 NULL	:= 2>/dev/null
@@ -13,13 +13,20 @@ OBJCOPY		= $(PREFIX)objcopy
 # `$(shell pwd)` or `.`, both works
 TOP			= .
 BDIR		= $(TOP)/$(BUILD_DIR)
+ifeq ($(detected_OS),WIN) 
+MKDIR  		= -mkdir
+MKDIR_NULL 	= 2>/dev/null
+RMDIR  		= rmdir /s /q
+else
+MKDIR  		= mkdir -p
+MKDIR_NULL	=
+RMDIR  		= rm -rf
+endif
 
-# For each direcotry, add it to csources
-CSOURCES := $(foreach dir, $(CDIRS), $(shell find $(TOP)/$(dir) -maxdepth 1 -name '*.c'))
+
 # Add single c source files to csources
 CSOURCES += $(addprefix $(TOP)/, $(CFILES))
 # Then assembly source folders and files
-ASOURCES := $(foreach dir, $(ADIRS), $(shell find $(TOP)/$(dir) -maxdepth 1 -name '*.s'))
 ASOURCES += $(addprefix $(TOP)/, $(AFILES))
 
 # Fill object files with c and asm files (keep source directory structure)
@@ -77,33 +84,33 @@ echo:
 
 # Compile c to obj -- should be `$(BDIR)/%.o: $(TOP)/%.c`, but since $(TOP) is base folder so non-path also works
 $(BDIR)/%.o: %.c
-	@printf "  CC\t$<\n"
-	@mkdir -p $(dir $@)
+	@echo "CC    $<"
+	@$(MKDIR) "$(dir $@)" $(MKDIR_NULL)
 	$(Q)$(CC) $(TGT_CFLAGS) $(TGT_INCFLAGS) -MT $@ -o $@ -c $< -MD -MF $(BDIR)/$*.d -MP
 
 # Compile asm to obj
 $(BDIR)/%.o: %.s
-	@printf "  AS\t$<\n"
-	@mkdir -p $(dir $@)
+	@echo "AS    $<"
+	@$(MKDIR) "$(dir $@)" $(MKDIR_NULL)
 	$(Q)$(CC) $(TGT_ASFLAGS) -o $@ -c $<
 
 # Link object files to elf
 $(BDIR)/$(PROJECT).elf: $(OBJS) $(TOP)/$(LDSCRIPT)
-	@printf "  LD\t$@\n"
+	@echo "  LD    $@"
 	$(Q)$(CC) $(TGT_LDFLAGS) -T$(TOP)/$(LDSCRIPT) $(OBJS) -o $@
 
 # Convert elf to bin
 %.bin: %.elf
-	@printf "  OBJCP BIN\t$@\n"
+	@echo "OBJCP BIN    $@"
 	$(Q)$(OBJCOPY) -I elf32-littlearm -O binary  $< $@
 
 # Convert elf to hex
 %.hex: %.elf
-	@printf "  OBJCP HEX\t$@\n"
+	@echo "OBJCP HEX    $@"
 	$(Q)$(OBJCOPY) -I elf32-littlearm -O ihex  $< $@
 
 clean:
-	rm -rf $(BDIR)/*
+	$(RMDIR) "$(BDIR)"
 
 flash:
 ifeq ($(FLASH_PROGRM),jlink)
@@ -111,6 +118,15 @@ ifeq ($(FLASH_PROGRM),jlink)
 else ifeq ($(FLASH_PROGRM),pyocd)
 	$(PYOCD_EXE) erase -t $(PYOCD_DEVICE) --chip --config $(TOP)/Misc/pyocd.yaml
 	$(PYOCD_EXE) load $(BDIR)/$(PROJECT).hex -t $(PYOCD_DEVICE) --config $(TOP)/Misc/pyocd.yaml
+else
+	@echo "FLASH_PROGRM is invalid\n"
+endif
+
+erase:
+ifeq ($(FLASH_PROGRM),jlink)
+	$(JLINKEXE) -device $(JLINK_DEVICE) -if swd -speed 4000 -JLinkScriptFile $(TOP)/Misc/jlink-script -CommanderScript $(TOP)/Misc/jlink-command_erase
+else ifeq ($(FLASH_PROGRM),pyocd)
+	$(PYOCD_EXE) erase -t $(PYOCD_DEVICE) --chip --config $(TOP)/Misc/pyocd.yaml
 else
 	@echo "FLASH_PROGRM is invalid\n"
 endif
