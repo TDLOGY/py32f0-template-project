@@ -1,4 +1,4 @@
 erase
-loadfile build/app.hex 0 noreset
+loadfile Build/app.hex 0 noreset
 reset
 exit

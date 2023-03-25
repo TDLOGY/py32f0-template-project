@@ -8,7 +8,7 @@ endif
 
 PROJECT			?= app
 # The path for generated files
-BUILD_DIR		= build
+BUILD_DIR		= Build
 
 
 ##### Options #####

@@ -1,9 +1,7 @@
-# PY32F0 Template Project for Windows
-
-Fork from: https://github.com/IOsetting/py32f0-template with modify makefile to support Windows
+# py32f0-template
 
 * Puya PY32F0 serie template project for GNU Arm Embedded Toolchain
-* Supported programmers: J-Link
+* Supported programmers: J-Link, DAPLink/PyOCD
 * Supported IDE: VSCode
 
 # Puya PY32F0 Family
@@ -54,36 +52,69 @@ There is high probability that PY32F002A, PY32F003 and PY32F030 share the same c
 
 # Requirements
 
-* PY32F0 EVB or boards of PY32F002/003/030 series: https://linhkienthuduc.com//product/search?search=PY32
+* PY32F0 EVB or boards of PY32F002/003/030 series
 * Programmer
-  * J-Link: J-Link OB programmer: https://linhkienthuduc.com/jlink-ob-072-mach-nap-cho-arm-cortex-m
+  * J-Link: J-Link OB programmer
+  * PyOCD: DAPLink or J-Link
 * SEGGER J-Link Software and Documentation pack [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/)
+* PyOCD [https://pyocd.io/](https://pyocd.io/)
 * GNU Arm Embedded Toolchain
 
 # Building
 
 ## 1. Install GNU Arm Embedded Toolchain
 
-Download the toolchain from [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) according to your pc architecture, extract the files and install:
+Download the toolchain from [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) according to your pc architecture, extract the files
 
-Note: Don't download Cortex-M PACBTI Version
-
-## 2. : Install SEGGER J-Link (Must)
+```bash
+sudo mkdir -p /opt/gcc-arm/
+sudo tar xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi.tar.xz -C /opt/gcc-arm/
+cd /opt/gcc-arm/
+sudo chown -R root:root arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/
+```
+## 2. Option #1: Install SEGGER J-Link
 
 Download and install JLink from [J-Link / J-Trace Downloads](https://www.segger.com/downloads/jlink/).
 
-Must: Copy [Project directory]/Misc/Flash/JLinkDevices to C:\Users\[Users]\AppData\Roaming\SEGGER\JLinkDevices\
+```bash
+# installation command for .deb
+sudo dpkg -i JLink_Linux_V784f_x86_64.deb
+# uncompression command for .tar.gz
+sudo tar xvf JLink_Linux_V784f_x86_64.tgz -C [target folder]
+```
+The default installation directory is */opt/SEGGER*
 
+Copy [Project directory]/Misc/Flash/JLinkDevices to [User home]/.config/SEGGER/JLinkDevices/
+```bash
+cd py32f0-template
+cp -r Misc/Flash/JLinkDevices/ ~/.config/SEGGER/
+```
 Read more: [https://wiki.segger.com/J-Link_Device_Support_Kit](https://wiki.segger.com/J-Link_Device_Support_Kit)
+
+## 2. Option #2: Install PyOCD
+
+Don't install from apt repository, because the version 0.13.1+dfsg-1 is too low for J-Link probe.
+
+Install PyOCD from pip
+
+```bash
+pip uninstall pyocd
+```
+This will install PyOCD into:
+```
+/home/[user]/.local/bin/pyocd
+/home/[user]/.local/bin/pyocd-gdbserver
+/home/[user]/.local/lib/python3.10/site-packages/pyocd-0.34.2.dist-info/*
+/home/[user]/.local/lib/python3.10/site-packages/pyocd/*
+```
+In Ubuntu, .profile will take care of the PATH, run `source ~/.profile` to make pyocd command available
 
 ## 3. Clone This Repository
 
 Clone this repository to local workspace
+```bash
+git clone https://github.com/IOsetting/py32f0-template.git
 ```
-git clone https://github.com/TDLOGY/py32f0-template-project
-```
-
-Or download directly from link: https://github.com/TDLOGY/py32f0-template-project
 
 ## 4. Edit Makefile
 
@@ -93,7 +124,8 @@ Change the settings in Makefile
 * **USE_FREERTOS** Set `USE_FREERTOS ?= y` will include FreeRTOS in compilation
 * **USE_DSP** Include CMSIS DSP or not
 * **FLASH_PROGRM**
-  * If you use J-Link, `FLASH_PROGRM` jlink
+  * If you use J-Link, `FLASH_PROGRM` can be jlink or pyocd
+  * If you use DAPLink, set `FLASH_PROGRM ?= pyocd`
   * ST-LINK is not supported yet.
 * **ARM_TOOCHAIN** Make sure it points to the correct path of arm-none-eabi-gcc
 
@@ -118,14 +150,11 @@ USE_DSP           ?= n
 # Programmer, jlink or pyocd
 FLASH_PROGRM      ?= pyocd
 
-ifeq ($(detected_OS),WIN)     # is Windows_NT on XP, 2000, 7, Vista, 10...
-ARM_TOOCHAIN	?= C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/12.2 rel1/bin
-JLINKEXE		?= C:/Program Files/SEGGER/JLink/JLink
-else
-ARM_TOOCHAIN	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin
-JLINKEXE		?= /opt/SEGGER/JLink/JLinkExe
-endif
+##### Toolchains #######
+ARM_TOOCHAIN      ?= /opt/gcc-arm/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin
 
+# path to JLinkExe
+JLINKEXE          ?= /opt/SEGGER/JLink/JLinkExe
 # JLink device type, options:
 #   PY32F002AX5, PY32F002X5, 
 #   PY32F003X4, PY32F003X6, PY32F003X8, 
@@ -144,7 +173,7 @@ PYOCD_DEVICE      ?= py32f030x8
 ##### Paths ############
 
 # Link descript file: py32f002x5.ld, py32f003x6.ld, py32f003x8.ld, py32f030x6.ld, py32f030x8.ld
-LDSCRIPT          = Libraries/LDScripts/py32f002x5.ld
+LDSCRIPT          = Libraries/LDScripts/py32f030x8.ld
 # Library build flags: 
 #   PY32F002x5, PY32F002Ax5, 
 #   PY32F003x4, PY32F003x6, PY32F003x8, 
@@ -160,12 +189,10 @@ LIB_FLAGS         = PY32F030x6
 make clean
 # build
 make
-# or make with verbose output, Linux only
+# or make with verbose output
 V=1 make
 # flash
 make flash
-# erase
-make erase
 ```
 
 # Debugging In VSCode
