@@ -1,5 +1,7 @@
 # PY32F0 Template Project for Windows
 
+More about hardware and development kit:  [TDLOGY Dev Resource](https://github.com/TDLOGY/PY32F002A-Dev-Resource)
+
 Fork from: https://github.com/IOsetting/py32f0-template with modify makefile to support Windows
 
 * Puya PY32F0 seriees template project for GNU Arm Embedded Toolchain
