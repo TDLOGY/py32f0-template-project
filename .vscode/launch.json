@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}/Build/app.elf",
+            "name": "Debug Microcontroller",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+            "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/12.2 rel1/bin",
+            "device": "PY32F030X8",
+            "interface": "swd",
+            "serialNumber": "", // add J-Link serial number if having multiple attached the same time.
+            "svdFile": "${workspaceFolder}/Misc/SVD/py32f030xx.svd",
+
+            "showDevDebugOutput": "vscode", // parsed, raw, vscode:vscode log and raw
+            "runToEntryPoint": "main", // "main" or other function name. runToMain is deprecated
+            "preLaunchTask": "build",  // Set this to run a task from tasks.json before starting a debug session
+        }
+    ]
+}

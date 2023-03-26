@@ -1,3 +1,2 @@
-.vscode/
-/build*
-/Temp*
+/Build*
+Build**
