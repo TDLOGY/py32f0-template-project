@@ -2,7 +2,7 @@
 
 Fork from: https://github.com/IOsetting/py32f0-template with modify makefile to support Windows
 
-* Puya PY32F0 serie template project for GNU Arm Embedded Toolchain
+* Puya PY32F0 seriees template project for GNU Arm Embedded Toolchain
 * Supported programmers: J-Link
 * Supported IDE: VSCode
 
@@ -67,10 +67,12 @@ There is high probability that PY32F002A, PY32F003 and PY32F030 share the same c
 
 Download the toolchain from [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) according to your pc architecture, extract the files and install:
 
-Note: Don't download Cortex-M PACBTI Version
+**Note: Don't download Cortex-M PACBTI Version**
 
 ## 1b. Install Make
 Download make 3.81 Binaries from: https://gnuwin32.sourceforge.net/packages/make.htm
+
+**Note: Add Make path to PATH: C:\Program Files (x86)\GnuWin32\bin**
 
 ## 2. : Install SEGGER J-Link (Must)
 
