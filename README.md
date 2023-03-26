@@ -173,6 +173,20 @@ make flash
 # erase
 make erase
 ```
+# Hardware connection
+
+![Hardware connection digram](Docs/HW_Connection.png)
+
+Signal Name | Kit | Jlink
+--- | --- | --- | 
+VCC | 5V | VCC 3.3V
+GND | GND | GND
+SWCLK | SCK | SWCLK
+SWDIO | SWD | SWDIO
+RESET | nRST | RST
+MCU_UART_TX | PA2 | RXD
+MCU_UART_RX | PA1 | TXD
+
 
 # Debugging In VSCode
 
