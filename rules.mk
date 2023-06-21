@@ -15,7 +15,7 @@ TOP			= .
 BDIR		= $(TOP)/$(BUILD_DIR)
 ifeq ($(detected_OS),WIN) 
 MKDIR  		= -mkdir
-MKDIR_NULL 	= 2>/dev/null
+MKDIR_NULL 	= 
 RMDIR  		= rmdir /s /q
 else
 MKDIR  		= mkdir -p
