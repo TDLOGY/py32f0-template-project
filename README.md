@@ -1,8 +1,10 @@
 # PY32F0 Template Project for Windows
 
+More about hardware and development kit:  [TDLOGY Dev Resource](https://github.com/TDLOGY/PY32F002A-Dev-Resource)
+
 Fork from: https://github.com/IOsetting/py32f0-template with modify makefile to support Windows
 
-* Puya PY32F0 serie template project for GNU Arm Embedded Toolchain
+* Puya PY32F0 seriees template project for GNU Arm Embedded Toolchain
 * Supported programmers: J-Link
 * Supported IDE: VSCode
 
@@ -67,10 +69,12 @@ There is high probability that PY32F002A, PY32F003 and PY32F030 share the same c
 
 Download the toolchain from [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) according to your pc architecture, extract the files and install:
 
-Note: Don't download Cortex-M PACBTI Version
+**Note: Don't download Cortex-M PACBTI Version**
 
 ## 1b. Install Make
 Download make 3.81 Binaries from: https://gnuwin32.sourceforge.net/packages/make.htm
+
+**Note: Add Make path to PATH: C:\Program Files (x86)\GnuWin32\bin**
 
 ## 2. : Install SEGGER J-Link (Must)
 
@@ -171,50 +175,67 @@ make flash
 # erase
 make erase
 ```
+# Hardware connection
+
+![Hardware connection digram](Docs/HW_Connection.png)
+
+Signal Name | Kit | Jlink
+--- | --- | --- | 
+VCC | 5V | VCC 3.3V
+GND | GND | GND
+SWCLK | SCK | SWCLK
+SWDIO | SWD | SWDIO
+RESET | nRST | RST
+MCU_UART_TX | PA2 | RXD
+MCU_UART_RX | PA1 | TXD
+
 
 # Debugging In VSCode
 
 Install Cortex Debug extension, add a new configuration in launch.json, e.g.
 ```
 {
-    "armToolchainPath": "/opt/gcc-arm/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin/",
-    "toolchainPrefix": "arm-none-eabi",
-    "name": "Cortex Debug",
-    "cwd": "${workspaceFolder}",
-    "executable": "${workspaceFolder}/Build/app.elf",
-    "request": "launch",        // can be launch or attach
-    "type": "cortex-debug",
-    "runToEntryPoint": "Reset_Handler", // "main" or other function name. runToMain is deprecated
-    "servertype": "jlink",  // jlink, openocd, pyocd, pe and stutil
-    "device": "PY32F030X8",
-    "interface": "swd",
-    "preLaunchTask": "build",  // Set this to run a task from tasks.json before starting a debug session
-    // "preLaunchCommands": ["Build all"], // Uncomment this if not using preLaunchTask
-    "svdFile": "${workspaceFolder}/Misc/SVD/py32f030xx.svd",  // svd for this part number
-    "showDevDebugOutput": "vscode", // parsed, raw, vscode:vscode log and raw
-    "swoConfig":
-    {
-        "enabled": true,
-        "cpuFrequency": 8000000, // Target CPU frequency in Hz
-        "swoFrequency":  4000000,
-        "source": "probe", // either be “probe” to get directly from the debug probe, 
-                           // or a serial port device to use a serial port external to the debug probe.
-        "decoders":
-        [
-            {
-                "label": "ITM port 0 output",
-                "type": "console",
-                "port": 0,
-                "showOnStartup": true,
-                "encoding": "ascii"
-            }
-        ]
-    }
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}/Build/app.elf",
+            "name": "Debug Microcontroller",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+            "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/12.2 rel1/bin",
+            "device": "PY32F030X8",
+            "interface": "swd",
+            "serialNumber": "", // add J-Link serial number if having multiple attached the same time.
+            "svdFile": "${workspaceFolder}/Misc/SVD/py32f030xx.svd",
+
+            "showDevDebugOutput": "vscode", // parsed, raw, vscode:vscode log and raw
+            "runToEntryPoint": "main", // "main" or other function name. runToMain is deprecated
+            "preLaunchTask": "build",  // Set this to run a task from tasks.json before starting a debug session
+        }
+    ]
 }
 ```
-If Cortex Debug cannot find JLinkGDBServerCLExe, add the following line to settings.json
+
+task.json
 ```
-"cortex-debug.JLinkGDBServerPath": "/opt/SEGGER/JLink/JLinkGDBServerCLExe",
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make -j4"
+        }
+    ]
+}
 ```
 
 # Try Other Examples
